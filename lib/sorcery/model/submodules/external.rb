@@ -47,6 +47,21 @@ module Sorcery
         end
         
         module InstanceMethods
+          #takes a provider and uid and links the account
+          def link_from_provider(provider,uid)
+            config = sorcery_config
+            authentication = config.authentications_class.find_by_provider_and_uid(provider, uid)
+            unless authentication
+              config.authentications_class.create!({config.authentications_user_id_attribute_name => id, config.provider_attribute_name => provider, config.provider_uid_attribute_name => uid})
+            else
+              if id == authentication.send(config.authentications_user_id_attribute_name)
+                #They have already been linked
+                authentication
+              else
+                raise SecurityError, "Another User has already linked this account"
+              end
+            end
+          end
 
         end
       

@@ -52,6 +52,17 @@ module Sorcery
             end
           end
 
+          # tries to login the user, if already logged in then links them instead
+          def login_or_link_from(provider)
+            return login_from(provider) unless logged_in?
+
+            @provider = Config.send(provider)
+            @user_hash = @provider.get_user_hash
+
+            current_user.link_from_provider(provider, @user_hash[:uid].to_s)
+            current_user
+          end
+
           # get provider access account
           def access_token(provider)
             @provider = Config.send(provider)

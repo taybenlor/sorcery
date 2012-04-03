@@ -45,6 +45,7 @@ module Sorcery
             @provider = Config.send(provider)
             @provider.process_callback(params,session)
             @user_hash = @provider.get_user_hash
+
             if user = user_class.load_from_provider(provider,@user_hash[:uid].to_s)
               reset_session
               auto_login(user)
@@ -56,17 +57,22 @@ module Sorcery
           def login_or_link_from(provider)
             return login_from(provider) unless logged_in?
 
-            @provider = Config.send(provider)
-            @user_hash = @provider.get_user_hash
-
-            current_user.link_from_provider(provider, @user_hash[:uid].to_s)
+            current_user.link_from_provider(provider, uid_from(provider))
             current_user
           end
 
           # get provider access account
           def access_token(provider)
             @provider = Config.send(provider)
+            @provider.process_callback(params,session)
             @provider.access_token
+          end
+
+          # get provider user id
+          def uid_from(provider)
+            @provider = Config.send(provider)
+            @user_hash = @provider.get_user_hash
+            @user_hash[:uid].to_s
           end
           
           # this method automatically creates a new user from the data in the external user hash.

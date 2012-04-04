@@ -46,7 +46,7 @@ module Sorcery
             @provider.process_callback(params,session)
             @user_hash = @provider.get_user_hash
 
-            if user = user_class.load_from_provider(provider,@user_hash[:uid].to_s)
+            if user = user_class.load_from_provider(provider, @user_hash[:uid].to_s)
               reset_session
               auto_login(user)
               user
@@ -63,6 +63,8 @@ module Sorcery
 
           # get provider access account
           def access_token(provider)
+            @provider.access_token if @provider
+            
             @provider = Config.send(provider)
             @provider.process_callback(params,session)
             @provider.access_token
@@ -70,7 +72,10 @@ module Sorcery
 
           # get provider user id
           def uid_from(provider)
+            return @user_hash[:uid].to_s if @user_hash
+
             @provider = Config.send(provider)
+            @provider.process_callback(params,session)
             @user_hash = @provider.get_user_hash
             @user_hash[:uid].to_s
           end

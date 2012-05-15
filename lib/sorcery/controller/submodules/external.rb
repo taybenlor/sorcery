@@ -32,12 +32,13 @@ module Sorcery
           # sends user to authenticate at the provider's website.
           # after authentication the user is redirected to the callback defined in the provider config
           def login_at(provider, args = {})
+            redirect_to login_url_for(provider)
+          end
+
+          # Gives the login url to link to
+          def login_url_for(provider)
             @provider = Config.send(provider)
-            if @provider.has_callback?
-              redirect_to @provider.login_url(params,session)
-            else
-              #@provider.login(args)
-            end
+            @provider.login_url(params, session)
           end
           
           # tries to login the user from provider's callback
